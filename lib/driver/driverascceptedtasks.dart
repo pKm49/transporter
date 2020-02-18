@@ -1,10 +1,10 @@
 import 'dart:convert';
 
+import 'package:bicoders_transporter/driver/components/driveracceptedsingletask.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:transporter/driver/components/driveracceptedsingletask.dart';
 
 class DriverAcceptedTasks extends StatefulWidget {
   @override
@@ -51,7 +51,7 @@ class _DriverAcceptedTasksState extends State<DriverAcceptedTasks> {
 
     dynamic getAcceptedDriverListRequestBody = {
       'DriverId': '$driverId',
-      'Accept': '1',
+      'Accept': '0',
     };
 
     check().then((intenet) async {
@@ -167,12 +167,17 @@ if accept = 0
                   itemCount: acceptedTasksLength,
                   itemBuilder: (BuildContext context, int index) {
                     return DriverAcceptedSingleTask(
+                      id: acceptedTasks[index]['IDD'],
                       guestName: acceptedTasks[index]['GUEST_NAME'],
                       picDate: acceptedTasks[index]['PICDATE'],
                       frCityId: acceptedTasks[index]['FRCITYID'],
                       lFrom: acceptedTasks[index]['LFROM'],
                       toCityId: acceptedTasks[index]['TOCITYID'],
                       lTo: acceptedTasks[index]['LTO'],
+                      frcity_Longitude: acceptedTasks[index]['FRCITY_LONGITUDE'],
+                      frcity_Latitude: acceptedTasks[index]['FRCITY_LATITUDE'],
+                      tocity_Longitude: acceptedTasks[index]['TOCITY_LONGITUDE'],
+                      tocity_Latitude: acceptedTasks[index]['TOCITY_LATITUDE'],
                       trTp: acceptedTasks[index]['TRTP'],
                       flight: acceptedTasks[index]['FLIGHT'],
                       flightDetails: acceptedTasks[index]['FLIGHTDETAILS'],

@@ -1,11 +1,11 @@
 import 'dart:convert';
 
+import 'package:bicoders_transporter/admin/admindashboard.dart';
+import 'package:bicoders_transporter/driver/driverdashboard.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:transporter/admin/admindashboard.dart';
-import 'package:transporter/driver/driverdashboard.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -125,29 +125,6 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
                 SizedBox(height: 25.0),
-                DropdownButton<String>(
-                  value: dropdownValue,
-                  icon: Icon(Icons.arrow_downward),
-                  iconSize: 24,
-                  elevation: 16,
-                  style: TextStyle(color: Colors.deepPurple),
-                  underline: Container(
-                    height: 2,
-                    color: Colors.deepPurpleAccent,
-                  ),
-                  onChanged: (String newValue) {
-                    setState(() {
-                      dropdownValue = newValue;
-                    });
-                  },
-                  items: <String>['One', 'Two', 'Free', 'Four']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
                 ButtonTheme(
                   minWidth: deviceWidth,
                   height: 60.0,

@@ -1,5 +1,5 @@
+import 'package:bicoders_transporter/driver/drivertaskdetails.dart';
 import 'package:flutter/material.dart';
-import 'package:transporter/driver/drivertaskdetails.dart';
 
 class AdminAllTasks extends StatefulWidget {
   @override

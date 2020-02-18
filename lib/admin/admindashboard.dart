@@ -1,6 +1,6 @@
+import 'package:bicoders_transporter/admin/adminalltasks.dart';
+import 'package:bicoders_transporter/admin/adminreport.dart';
 import 'package:flutter/material.dart';
-import 'package:transporter/admin/adminalltasks.dart';
-import 'package:transporter/admin/adminreport.dart';
 
 class AdminDashboard extends StatefulWidget {
   @override

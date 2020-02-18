@@ -1,7 +1,16 @@
+import 'dart:math';
+
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:location/location.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DriverAcceptedSingleTask extends StatefulWidget {
+  final id;
   final guestName;
   final picDate;
   final frCityId;
@@ -14,8 +23,13 @@ class DriverAcceptedSingleTask extends StatefulWidget {
   final qty;
   final adult;
   final child;
+  final frcity_Longitude;
+  final frcity_Latitude;
+  final tocity_Longitude;
+  final tocity_Latitude;
 
   DriverAcceptedSingleTask({
+    this.id,
     this.guestName,
     this.picDate,
     this.frCityId,
@@ -28,6 +42,10 @@ class DriverAcceptedSingleTask extends StatefulWidget {
     this.qty,
     this.adult,
     this.child,
+    this.frcity_Longitude,
+    this.frcity_Latitude,
+    this.tocity_Longitude,
+    this.tocity_Latitude,
   });
 
   @override
@@ -37,6 +55,17 @@ class DriverAcceptedSingleTask extends StatefulWidget {
 
 class _DriverAcceptedSingleTaskState extends State<DriverAcceptedSingleTask> {
   bool detailsVisibility = false;
+  PermissionStatus permissionStatus;
+  var location = new Location();
+  final LatLng _center = const LatLng(45.521563, -122.677433);
+  LatLng pinPosition;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getPermission();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -275,7 +304,15 @@ class _DriverAcceptedSingleTaskState extends State<DriverAcceptedSingleTask> {
                       child: RaisedButton(
                         textColor: Colors.white,
                         color: Colors.orange,
-                        onPressed: () {},
+                        onPressed: () {
+                          startRide(
+                              widget.id,
+                              picDate,
+                              widget.frcity_Latitude,
+                              widget.frcity_Longitude,
+                              widget.tocity_Latitude,
+                              widget.tocity_Longitude);
+                        },
                         shape: new RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(5.0)),
                         child: new Text(
@@ -317,5 +354,154 @@ class _DriverAcceptedSingleTaskState extends State<DriverAcceptedSingleTask> {
     } else {
       return false;
     }
+  }
+
+  Future startRide(id, DateTime picDate, frcity_latitude, frcity_longitude,
+      tocity_latitude, tocity_longitude) async {
+    LatLng currentLoc = await _getLocation();
+    print("latitude");
+    var displacementString = distance(
+        double.parse(frcity_latitude.toString().substring(0, 7)),
+        double.parse(frcity_longitude.toString().substring(0, 7)),
+        currentLoc.latitude,
+        currentLoc.longitude);
+    var displacement = double.parse(displacementString);
+    var timedifference = findTimeDifference(picDate);
+
+    if (displacement < 1 && timedifference < 10) {
+      startTask(id);
+    }
+  }
+
+  Future startTask(id) async {
+    Map<String, String> headers = {};
+    SharedPreferences sharedPreferences;
+    String access_token;
+
+    final String startTaskUrl =
+        'https://hotel.bicoders.com/api/MobDriverDetails/UpdatePicStatus';
+
+    sharedPreferences = await SharedPreferences.getInstance();
+    access_token = sharedPreferences.getString('access_token');
+    var currentId = sharedPreferences.getString('currentTaskId');
+
+    print("access_token");
+    print(access_token);
+
+    headers['authorization'] = "bearer " + access_token;
+    headers['Content-Type'] = "application/x-www-form-urlencoded";
+    headers['No-Auth'] = "true";
+
+    print("id is");
+    print(id);
+
+    dynamic startTaskBody = {
+      'ID': id.toString(),
+    };
+
+    check().then((intenet) async {
+      if (intenet != null && intenet && currentId == null) {
+        var getAssignedDriverListResponse = await http.post(
+            Uri.encodeFull(startTaskUrl),
+            headers: headers,
+            body: startTaskBody);
+
+        print("Tasks are");
+        print(getAssignedDriverListResponse.body);
+
+        return "success";
+      } else {
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text("Check Your Internet Connection and try again."),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Ok'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+      return "success";
+    });
+  }
+
+  Future<bool> check() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile) {
+      return true;
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      return true;
+    }
+    return false;
+  }
+
+  String distance(double lat1, double lon1, double lat2, double lon2) {
+    double theta = lon1 - lon2;
+    double dist = sin(deg2rad(lat1)) * sin(deg2rad(lat2)) +
+        cos(deg2rad(lat1)) * cos(deg2rad(lat2)) * cos(deg2rad(theta));
+    dist = acos(dist);
+    dist = rad2deg(dist);
+    dist = dist * 60 * 1.1515;
+    dist = dist * 1.609344;
+    return dist.toStringAsFixed(2);
+  }
+
+  double deg2rad(double deg) {
+    return (deg * pi / 180.0);
+  }
+
+  double rad2deg(double rad) {
+    return (rad * 180.0 / pi);
+  }
+
+  Future getPermission() async {
+    permissionStatus = await PermissionHandler()
+        .checkPermissionStatus(PermissionGroup.location);
+    if (permissionStatus.value == 2) {
+      print("permisssion granted");
+      _getLocation();
+    } else {
+      print("permisssion not granted");
+      PermissionHandler()
+          .requestPermissions([PermissionGroup.location]).then(onRequestAsked);
+    }
+  }
+
+  onRequestAsked(Map<PermissionGroup, PermissionStatus> value) {
+    final status = value[PermissionGroup.location];
+    setState(() {
+      permissionStatus = status;
+    });
+  }
+
+  Future<LatLng> _getLocation() async {
+    try {
+      LocationData currentLocation = await location.getLocation();
+      print("longitude");
+      print(currentLocation.longitude);
+      setState(() {
+        pinPosition =
+            LatLng(currentLocation.longitude, currentLocation.latitude);
+      });
+      return pinPosition;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  int findTimeDifference(DateTime picDate) {
+    var now = new DateTime.now();
+    int difference = now.difference(picDate).inMinutes;
+    return difference;
   }
 }

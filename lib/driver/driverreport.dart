@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:transporter/mapview.dart';
 
 class DriverReport extends StatefulWidget {
   @override
@@ -98,12 +97,7 @@ class _DriverReportState extends State<DriverReport> {
                                 child: RaisedButton(
                                   textColor: Colors.white,
                                   color: Colors.orange,
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => MapView()));
-                                  },
+                                  onPressed: () {},
                                   shape: new RoundedRectangleBorder(
                                       borderRadius:
                                           new BorderRadius.circular(5.0)),

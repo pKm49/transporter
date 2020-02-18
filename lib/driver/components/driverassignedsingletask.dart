@@ -1,7 +1,10 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class DriverAssignedSingleTask extends StatelessWidget {
+class DriverAssignedSingleTask extends StatefulWidget {
   final id;
   final guestName;
   final picDate;
@@ -33,16 +36,22 @@ class DriverAssignedSingleTask extends StatelessWidget {
   });
 
   @override
+  _DriverAssignedSingleTaskState createState() =>
+      _DriverAssignedSingleTaskState();
+}
+
+class _DriverAssignedSingleTaskState extends State<DriverAssignedSingleTask> {
+  bool detailsVisibility = false;
+  @override
   Widget build(BuildContext context) {
-    bool detailsVisibility = false;
     var piscDate = DateTime.parse(
-      picDate,
+      widget.picDate,
     );
     var format = new DateFormat.yMd().add_jm();
 
     String formatedPicDate = format.format(piscDate);
 
-    String tranType = getTrantype(trTp);
+    String tranType = getTrantype(widget.trTp);
 
     double deviceWidth = MediaQuery.of(context).size.width;
     double deviceHeight = MediaQuery.of(context).size.height;
@@ -65,7 +74,7 @@ class DriverAssignedSingleTask extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            guestName,
+            widget.guestName,
             textScaleFactor: 1.3,
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
@@ -83,7 +92,7 @@ class DriverAssignedSingleTask extends StatelessWidget {
               Expanded(
                   flex: 4,
                   child: Text(
-                    lFrom + "," + frCityId,
+                    widget.lFrom + "," + widget.frCityId,
                     textScaleFactor: 1.5,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   )),
@@ -98,7 +107,7 @@ class DriverAssignedSingleTask extends StatelessWidget {
               Expanded(
                   flex: 4,
                   child: Text(
-                    lTo + "," + toCityId,
+                    widget.lTo + "," + widget.toCityId,
                     textScaleFactor: 1.5,
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.end,
@@ -127,7 +136,7 @@ class DriverAssignedSingleTask extends StatelessWidget {
               visible: detailsVisibility ? true : false,
               child: SizedBox(height: 6)),
           Visibility(
-              visible: getFlightVisibility(detailsVisibility, trTp),
+              visible: getFlightVisibility(detailsVisibility, widget.trTp),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -137,7 +146,7 @@ class DriverAssignedSingleTask extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    flight,
+                    widget.flight,
                     textScaleFactor: 1.3,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -147,7 +156,7 @@ class DriverAssignedSingleTask extends StatelessWidget {
               visible: detailsVisibility ? true : false,
               child: SizedBox(height: 6)),
           Visibility(
-              visible: getFlightVisibility(detailsVisibility, trTp),
+              visible: getFlightVisibility(detailsVisibility, widget.trTp),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -157,7 +166,7 @@ class DriverAssignedSingleTask extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    getString(flightDetails),
+                    getString(widget.flightDetails),
                     textScaleFactor: 1.3,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -167,7 +176,7 @@ class DriverAssignedSingleTask extends StatelessWidget {
               visible: detailsVisibility ? true : false,
               child: SizedBox(height: 6)),
           Visibility(
-              visible: getFlightVisibility(detailsVisibility, trTp),
+              visible: getFlightVisibility(detailsVisibility, widget.trTp),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -177,7 +186,7 @@ class DriverAssignedSingleTask extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    getString(qty),
+                    getString(widget.qty),
                     textScaleFactor: 1.3,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -187,7 +196,7 @@ class DriverAssignedSingleTask extends StatelessWidget {
               visible: detailsVisibility ? true : false,
               child: SizedBox(height: 6)),
           Visibility(
-              visible: getFlightVisibility(detailsVisibility, trTp),
+              visible: getFlightVisibility(detailsVisibility, widget.trTp),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -197,7 +206,7 @@ class DriverAssignedSingleTask extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    getString(adult),
+                    getString(widget.adult),
                     textScaleFactor: 1.3,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -207,7 +216,7 @@ class DriverAssignedSingleTask extends StatelessWidget {
               visible: detailsVisibility ? true : false,
               child: SizedBox(height: 6)),
           Visibility(
-              visible: getFlightVisibility(detailsVisibility, trTp),
+              visible: getFlightVisibility(detailsVisibility, widget.trTp),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -217,7 +226,7 @@ class DriverAssignedSingleTask extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    getString(child),
+                    getString(widget.child),
                     textScaleFactor: 1.3,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -240,7 +249,20 @@ class DriverAssignedSingleTask extends StatelessWidget {
                       child: RaisedButton(
                         textColor: Colors.white,
                         color: Colors.blue,
-                        onPressed: () {},
+                        onPressed: () {
+                          if (detailsVisibility) {
+                            print("true");
+                            setState(() {
+                              detailsVisibility = false;
+                            });
+                          } else {
+                            print("false");
+                            print(detailsVisibility);
+                            setState(() {
+                              detailsVisibility = true;
+                            });
+                          }
+                        },
                         shape: new RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(5.0)),
                         child: new Text(
@@ -260,7 +282,9 @@ class DriverAssignedSingleTask extends StatelessWidget {
                       child: RaisedButton(
                         textColor: Colors.white,
                         color: Colors.orange,
-                        onPressed: () {},
+                        onPressed: () {
+                          acceptTask(widget.id);
+                        },
                         shape: new RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(5.0)),
                         child: new Text(
@@ -302,5 +326,76 @@ class DriverAssignedSingleTask extends StatelessWidget {
     } else {
       return false;
     }
+  }
+
+  Future acceptTask(id) async {
+    Map<String, String> headers = {};
+    SharedPreferences sharedPreferences;
+    String access_token;
+
+    final String acceptTaskUrl =
+        'https://hotel.bicoders.com/api/MobDriverDetails/ConfirmTripByDriver';
+
+    sharedPreferences = await SharedPreferences.getInstance();
+    access_token = sharedPreferences.getString('access_token');
+
+    print("access_token");
+    print(access_token);
+
+    headers['authorization'] = "bearer " + access_token;
+    headers['Content-Type'] = "application/x-www-form-urlencoded";
+    headers['No-Auth'] = "true";
+
+    print("id is");
+    print(id);
+
+    dynamic acceptTaskBody = {
+      'ID': id.toString(),
+    };
+
+    check().then((intenet) async {
+      if (intenet != null && intenet) {
+        var getAssignedDriverListResponse = await http.post(
+            Uri.encodeFull(acceptTaskUrl),
+            headers: headers,
+            body: acceptTaskBody);
+
+        print("Tasks are");
+        print(getAssignedDriverListResponse.body);
+
+        return "success";
+      } else {
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text("Check Your Internet Connection and try again."),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Ok'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+      return "success";
+    });
+  }
+
+  Future<bool> check() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile) {
+      return true;
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      return true;
+    }
+    return false;
   }
 }

@@ -1,7 +1,8 @@
+import 'package:bicoders_transporter/driver/driverascceptedtasks.dart';
+import 'package:bicoders_transporter/driver/driverassignedtasks.dart';
+import 'package:bicoders_transporter/driver/driverreport.dart';
+import 'package:bicoders_transporter/driver/drivertaskdetails.dart';
 import 'package:flutter/material.dart';
-import 'package:transporter/driver/driverascceptedtasks.dart';
-import 'package:transporter/driver/driverassignedtasks.dart';
-import 'package:transporter/driver/driverreport.dart';
 
 class DriverDashboard extends StatefulWidget {
   @override
@@ -17,7 +18,7 @@ class _DriverDashboardState extends State<DriverDashboard>
   void initState() {
     // TODO: implement initState
     super.initState();
-    driverDashboardTabController = new TabController(length: 3, vsync: this);
+    driverDashboardTabController = new TabController(length: 4, vsync: this);
   }
 
   @override
@@ -30,6 +31,7 @@ class _DriverDashboardState extends State<DriverDashboard>
             Tab(text: "Assigned Tasks"),
             Tab(text: "Accepted Tasks"),
             Tab(text: "Report"),
+            Tab(text: "Current Task"),
           ],
         ),
         centerTitle: true,
@@ -41,6 +43,7 @@ class _DriverDashboardState extends State<DriverDashboard>
           DriverAssignedTasks(),
           DriverAcceptedTasks(),
           DriverReport(),
+          DriverTaskDetails(),
         ],
       ),
     );
